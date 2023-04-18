@@ -17,4 +17,4 @@ jobs:
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push https://Hrithikka:$HF_TOKEN@huggingface.co/spaces/Hrithikka/Similarity-Search-System main
+        run: git push --force https://Hrithikka:$HF_TOKEN@huggingface.co/spaces/Hrithikka/Similarity-Search-System main
