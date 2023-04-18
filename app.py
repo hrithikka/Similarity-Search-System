@@ -22,25 +22,8 @@ f_dict = np.load("features.npy", allow_pickle=True).item()
 f_list = list(f_dict.values())
 image_names = list(f_dict.keys())
 
-# Create a list of all image paths
-image_paths = []
-for root, dirs, files in os.walk("lfw_dir"):
-    for file in files:
-        if file.endswith(".jpg") or file.endswith(".jpeg") or file.endswith(".png"):
-            image_paths.append(os.path.join(root, file))
-
-# Create a dictionary mapping image names to their corresponding paths
-image_paths_dict = {}
-for path in image_paths:
-    name = os.path.basename(path)
-    image_paths_dict[name] = path
-
-# Create a NearestNeighbors model
-model = NearestNeighbors(n_neighbors=10, algorithm='ball_tree')
-model.fit(f_list)
-
-# Define the Streamlit app
-st.title('Similarity Search System')
+# Define a default value for image_name
+image_name = ''
 
 # Create a sidebar with options for selecting an image or uploading an image
 option = st.sidebar.selectbox('Select an option', ('Select an image', 'Upload an image'))
@@ -59,19 +42,21 @@ elif option == 'Upload an image':
         # Load the uploaded image
         image_name = 'query_image.jpg'
 
-# Display the query image
-st.subheader('Query Image')
-q_image = Image.open(image_paths_dict[image_name])
-st.image(q_image, caption=image_name)
+# Check if image_name is defined before using it
+if image_name:
+    # Display the query image
+    st.subheader('Query Image')
+    q_image = Image.open(image_paths_dict[image_name])
+    st.image(q_image, caption=image_name)
 
-# Get the features of the query image
-q_image = transform(q_image)
-q_image = q_image.unsqueeze(0)
-q_features = resnet(q_image).detach().numpy().flatten()
+    # Get the features of the query image
+    q_image = transform(q_image)
+    q_image = q_image.unsqueeze(0)
+    q_features = resnet(q_image).detach().numpy().flatten()
 
-# Find the 10 most similar images to the query image
-distances, indices = model.kneighbors([q_features])
-st.subheader('Similar Images')
-for i in indices[0]:
-    similar_image = Image.open(image_paths[i])
-    st.image(similar_image, caption=image_names[i])
+    # Find the 10 most similar images to the query image
+    distances, indices = model.kneighbors([q_features])
+    st.subheader('Similar Images')
+    for i in indices[0]:
+        similar_image = Image.open(image_paths[i])
+        st.image(similar_image, caption=image_names[i])
