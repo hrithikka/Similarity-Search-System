@@ -83,9 +83,13 @@ q_image = transform(q_image)
 q_image = q_image.unsqueeze(0)
 q_features = resnet(q_image).detach().numpy().flatten()
 
-# Finding the 10 most similar images to the query image
+# Find the 10 most similar images to the query image
 distances, indices = model.kneighbors([q_features])
 st.subheader('Similar Images')
 for i in indices[0]:
-    similar_image = Image.open(image_paths[i])
-    st.image(similar_image, caption=image_names[i])
+    if i < len(image_paths):
+        similar_image = Image.open(image_paths[i])
+        st.image(similar_image, caption=image_names[i])
+    else:
+        st.write(f"Error: Could not find image with index {i}")
+
